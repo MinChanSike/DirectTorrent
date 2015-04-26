@@ -55,7 +55,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
         private TorrentHealth _movieHealth;
         private bool _hasFhd = false;
         private Quality _selectedQuality = Quality.HD;
-        private Torrent[] torrents = new Torrent[2];
+        private Torrent[] torrents = new Torrent[3];
 
         public GalaSoft.MvvmLight.CommandWpf.RelayCommand PlayButtonClicked { get; private set; }
 
@@ -193,7 +193,8 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
         }
         public void SetNewMovie(int movieId)
         {
-            LoadMovie(movieId);
+            Data.MovieId = movieId;
+            LoadMovie();
         }
         public bool HasFhd
         {
@@ -224,7 +225,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             }
         }
 
-        public MovieDetailsViewModel(int movieId)
+        public MovieDetailsViewModel(/*int movieId*/)
         {
             this.PlayButtonClicked = new GalaSoft.MvvmLight.CommandWpf.RelayCommand(() =>
             {
@@ -232,20 +233,20 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                 switch (SelectedQuality)
                 {
                     case Quality.HD:
-                        magnetUri = MovieRepository.GetTorrentMagnetUri(this.torrents[0].Hash, this.MovieTitle);
+                        Data.MagnetUri = MovieRepository.GetTorrentMagnetUri(this.torrents[0].Hash, this.MovieTitle);
                         break;
                     case Quality.FHD:
-                        magnetUri = MovieRepository.GetTorrentMagnetUri(this.torrents[1].Hash, this.MovieTitle);
+                        Data.MagnetUri = MovieRepository.GetTorrentMagnetUri(this.torrents[1].Hash, this.MovieTitle);
                         break;
                 }
-                var wind = new MovieVideo(magnetUri);
+                var wind = new MovieVideo();
                 wind.ShowDialog();
 
             });
-            LoadMovie(movieId);
+            LoadMovie();
         }
 
-        private void LoadMovie(int movId)
+        private void LoadMovie(/*int movId*/)
         {
             this.LoaderVisibility = Visibility.Visible;
             this.MovieVisibility = Visibility.Collapsed;
@@ -255,7 +256,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             {
                 try
                 {
-                    e.Result = MovieRepository.Yify.GetMovieDetails(movId);
+                    e.Result = MovieRepository.Yify.GetMovieDetails(Data.MovieId);
                 }
                 catch (Exception)
                 {
@@ -288,7 +289,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                     }
                     else
                         SetTorrentHealth(0);
-                    CurrentId = movId;
+                    CurrentId = Data.MovieId;
                     this.LoaderVisibility = Visibility.Collapsed;
                     this.MovieVisibility = Visibility.Visible;
                 }

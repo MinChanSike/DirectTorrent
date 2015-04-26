@@ -1,5 +1,4 @@
-﻿using FirstFloor.ModernUI.Windows.Controls;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -14,12 +13,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 
-
+using FirstFloor.ModernUI.Windows.Controls;
 using DirectTorrent.Logic.Services;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.Remoting.Channels;
-using AxWMPLib;
+using DirectTorrent.Presentation.Clients.WPFClient.ViewModels;
+using FirstFloor.ModernUI.Windows;
 
 namespace DirectTorrent.Presentation.Clients.WPFClient.Views
 {
@@ -28,42 +28,40 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.Views
     /// </summary>
     public partial class MovieVideo : ModernWindow
     {
-
-        public MovieVideo(string magnetUri)
+        public MovieVideo()
         {
             InitializeComponent();
-            //AxWMPLib.AxWindowsMediaPlayer player = new AxWindowsMediaPlayer();
-            //Host.Child = player;
-            if (magnetUri != string.Empty)
-            {
-                if (File.Exists("hash.txt"))
-                    File.Delete("hash.txt");
-                NodeServerManager.StartServer(magnetUri);
-                BackgroundWorker worker = new BackgroundWorker();
-                worker.DoWork += (sender, e) =>
-                {
-                    while (true)
-                    {
-                        if (File.Exists("hash.txt"))
-                            break;
-                    }
-                };
-                worker.RunWorkerCompleted += (sender, e) =>
-                {
-                    File.Delete("hash.txt");
-                    //this.Player.closedCaption.SAMIFileName=
-                    this.Player.URL = "http://localhost:1337";
-                };
-                worker.RunWorkerAsync();
+        }
+    }
 
-                //this.Player.URL = "http://localhost:1337";
-                //axWmp.URL = "http://localhost:1337";
-            }
+    public class ProgressToVolumeConverter : IValueConverter
+    {
+
+        object IValueConverter.Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            double test = (double)value;
+            double test2 = test*1.0;
+            double test3 = test2/2;
+            return test3;
         }
 
-        private void ModernWindow_Closing(object sender, CancelEventArgs e)
+        object IValueConverter.ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            NodeServerManager.CloseServer();
+            throw new NotImplementedException();
+        }
+    }
+
+    public class DoubleToPositionConverter : IValueConverter
+    {
+
+        object IValueConverter.Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+
+        object IValueConverter.ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }

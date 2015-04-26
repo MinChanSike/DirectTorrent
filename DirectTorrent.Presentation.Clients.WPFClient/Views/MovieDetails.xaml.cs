@@ -29,7 +29,6 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.Views
             InitializeComponent();
         }
 
-        private bool first = true;
         void IContent.OnFragmentNavigation(FirstFloor.ModernUI.Windows.Navigation.FragmentNavigationEventArgs e)
         {
         }
@@ -42,12 +41,6 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.Views
         {
             if (Data.MovieId != -1)
             {
-                if (first)
-                {
-                    this.DataContext = new MovieDetailsViewModel(Data.MovieId);
-                    first = false;
-                }
-                else if (Data.MovieId != MovieDetailsViewModel.CurrentId)
                     ((MovieDetailsViewModel)this.DataContext).SetNewMovie(Data.MovieId);
             }
             else

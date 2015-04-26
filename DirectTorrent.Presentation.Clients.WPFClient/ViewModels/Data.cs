@@ -23,5 +23,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                     _movieId = value;
             }
         }
+
+        public static string MagnetUri { get; set; }
     }
 }

@@ -4,10 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:mui="http://firstfloorsoftware.com/ModernUI"
-             xmlns:enum="clr-namespace:DirectTorrent.Logic.Models;assembly=DirectTorrent.Logic.Models" xmlns:local="clr-namespace:DirectTorrent.Presentation.Clients.WPFClient.Views"
-    x:Class="DirectTorrent.Presentation.Clients.WPFClient.Views.MovieDetails"
+             xmlns:enum="clr-namespace:DirectTorrent.Logic.Models;assembly=DirectTorrent.Logic.Models" 
+             xmlns:ViewModels="clr-namespace:DirectTorrent.Presentation.Clients.WPFClient.ViewModels"
+             xmlns:local="clr-namespace:DirectTorrent.Presentation.Clients.WPFClient.Views"
+             x:Class="DirectTorrent.Presentation.Clients.WPFClient.Views.MovieDetails"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="300" MinWidth="350" MinHeight="350">
+    <UserControl.DataContext>
+        <ViewModels:MovieDetailsViewModel/>
+    </UserControl.DataContext>
     <UserControl.Resources>
         <local:QualityToRadioButtonConverter x:Key="QualityToRadioButtonConverter"/>
     </UserControl.Resources>

@@ -19,7 +19,6 @@ using Sort = DirectTorrent.Data.Yify.Models.Sort;
 
 namespace DirectTorrent.Logic.Services
 {
-    // TODO: Additional work
 
     /// <summary>
     /// Represents the universal movie repository.
