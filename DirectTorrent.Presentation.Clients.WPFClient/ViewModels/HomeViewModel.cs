@@ -210,12 +210,9 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                     Dispatcher.CurrentDispatcher.Invoke(() =>
                     {
                         var movies = (IEnumerable<Movie>)e.Result;
-                        if (movies.Count() > MovieList.Count)
+                        foreach (var movie in (IEnumerable<Movie>)e.Result)
                         {
-                            foreach (var movie in (IEnumerable<Movie>) e.Result)
-                            {
-                                MovieList.Add(new HomeMovieItem(movie));
-                            }
+                            MovieList.Add(new HomeMovieItem(movie));
                         }
                     });
                     _currentPage++;

@@ -31,32 +31,45 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.Views
         public MovieVideo()
         {
             InitializeComponent();
+            this.Player.Play();
+            ((MovieVideoViewModel) this.DataContext).PlayRequested += (sender, args) =>
+            {
+                this.Player.Play();
+            };
+
+            ((MovieVideoViewModel)this.DataContext).PauseRequested += (sender, args) =>
+            {
+                this.Player.Pause();
+            };
+
+            ((MovieVideoViewModel)this.DataContext).StopRequested += (sender, args) =>
+            {
+                this.Player.Stop();
+            };
+        }
+
+        //private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        //{
+        //    this.Player.Position = new TimeSpan(0, 0, 0, 0, (int)e.NewValue);
+        //}
+
+        private bool first = true;
+        private void Player_OnMediaOpened(object sender, RoutedEventArgs e)
+        {
+            if (first)
+            {
+                this.Slider.Maximum = this.Player.NaturalDuration.TimeSpan.TotalMilliseconds;
+                this.Player.Pause();
+                first = false;
+            }
         }
     }
 
-    public class ProgressToVolumeConverter : IValueConverter
+    public class VolumeConverter : IValueConverter
     {
-
         object IValueConverter.Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            double test = (double)value;
-            double test2 = test*1.0;
-            double test3 = test2/2;
-            return test3;
-        }
-
-        object IValueConverter.ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class DoubleToPositionConverter : IValueConverter
-    {
-
-        object IValueConverter.Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            throw new NotImplementedException();
+            return (double) value/100;
         }
 
         object IValueConverter.ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
