@@ -25,5 +25,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
         }
 
         public static string MagnetUri { get; set; }
+
+        public static int Runtime { get; set; }
     }
 }

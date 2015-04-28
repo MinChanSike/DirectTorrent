@@ -278,6 +278,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                     var genre = genres.ToString();
                     genre = genre.Remove(genre.Length - 1);
                     this.MovieGenre = genre;
+                    Data.Runtime = movie.Runtime;
                     this.MovieImage = new BitmapImage(new Uri(movie.Images.LargeCoverImage, UriKind.Absolute));
                     this.ImdbLink = new Uri("http://www.imdb.com/title/" + movie.ImdbCode + "/", UriKind.Absolute);
                     movie.Torrents.CopyTo(this.torrents, 0);

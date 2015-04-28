@@ -167,7 +167,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             LoadMovies(false);
             this.ScrollChangedCommand = new RelayCommand<ScrollChangedEventArgs>((e) =>
             {
-                if (e.VerticalOffset == ((ScrollViewer)e.Source).ScrollableHeight)
+                if (e.VerticalOffset == ((ScrollViewer)e.Source).ScrollableHeight && MoviesVisibility == Visibility.Visible)
                     LoadMovies(false);
             });
             this.TextBoxLostFocus = new GalaSoft.MvvmLight.CommandWpf.RelayCommand(() => LoadMovies(true));
@@ -185,7 +185,6 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             {
                 MoviesVisibility = Visibility.Collapsed;
                 LoaderVisibility = Visibility.Visible;
-                MovieList.Clear();
                 _currentPage = 1;
             }
             else
@@ -207,9 +206,10 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             {
                 if (!e.Cancelled)
                 {
+                    if (reset)
+                        MovieList.Clear();
                     Dispatcher.CurrentDispatcher.Invoke(() =>
                     {
-                        var movies = (IEnumerable<Movie>)e.Result;
                         foreach (var movie in (IEnumerable<Movie>)e.Result)
                         {
                             MovieList.Add(new HomeMovieItem(movie));
@@ -217,8 +217,17 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                     });
                     _currentPage++;
                     IsLoading = false;
-                    LoaderVisibility = Visibility.Collapsed;
-                    MoviesVisibility = Visibility.Visible;
+                    if (MovieList.Count == 0)
+                    {
+                        LoaderVisibility = Visibility.Collapsed;
+                        MoviesVisibility = Visibility.Collapsed;
+                        ModernDialog.ShowMessage("Query has no results.", "No results!", MessageBoxButton.OK);
+                    }
+                    else
+                    {
+                        LoaderVisibility = Visibility.Collapsed;
+                        MoviesVisibility = Visibility.Visible;
+                    }
                 }
                 else
                 {

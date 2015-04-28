@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -13,6 +14,8 @@ using System.Windows.Navigation;
 using FirstFloor.ModernUI.Presentation;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
+using System.IO;
+using DirectTorrent.Logic.Services;
 
 namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
 {
@@ -27,6 +30,9 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
         public event EventHandler PlayRequested;
         public event EventHandler StopRequested;
         public event EventHandler PauseRequested;
+        public event EventHandler<int> SeekRequested;
+
+        public bool ManualSliderChange = true;
 
         // from 0 to 100, value converter scales it to 0 to 1
         private double _volume = 50;
@@ -44,11 +50,11 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
         }
 
         // in miliseconds
-        private double _position;
-        public double Position
+        private int _position;
+        public int Position
         {
             get { return this._position; }
-            private set
+            set
             {
                 if (this._position != value)
                 {
@@ -85,7 +91,14 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
 
             this.SliderValueChanged = new RelayCommand<RoutedPropertyChangedEventArgs<double>>((e) =>
             {
-                this.Position = e.NewValue;
+                if (ManualSliderChange)
+                {
+                    this.Position = (int)e.NewValue;
+                    if (this.SeekRequested != null)
+                        this.SeekRequested(this, this.Position);
+                }
+
+                ManualSliderChange = true;
             });
 
             this.PlayButtonClicked = new GalaSoft.MvvmLight.CommandWpf.RelayCommand(() =>
@@ -111,55 +124,28 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                     this.PauseRequested(this, EventArgs.Empty);
                 }
             });
-            //AxWMPLib.AxWindowsMediaPlayer player = new AxWindowsMediaPlayer();
-            //Host.Child = player;
-            //    if (magnetUri != string.Empty)
-            //    {
-            //        if (File.Exists("hash.txt"))
-            //            File.Delete("hash.txt");
-            //        NodeServerManager.StartServer(magnetUri);
-            //        BackgroundWorker worker = new BackgroundWorker();
-            //        worker.DoWork += (sender, e) =>
-            //        {
-            //            while (true)
-            //            {
-            //                if (File.Exists("hash.txt"))
-            //                    break;
-            //            }
-            //        };
-            //        worker.RunWorkerCompleted += (sender, e) =>
-            //        {
-            //            File.Delete("hash.txt");
-            //            //this.Player.closedCaption.SAMIFileName=
-            //            //this.Player.closedCaption.SAMIFileName = "sample.sami";
-            //            //this.Player.URL = "http://localhost:1337";
-            //            //Player.BufferingStarted += (obj, args) => { Player.Play(); };
-            //            Player.Play();
-            //            Player.MediaOpened += (obj, args) => { MessageBox.Show("ready!"); };
-            //            var parser = new SubtitlesParser.Classes.Parsers.SrtParser();
-            //            using (var fileStream = File.OpenRead("sample.srt"))
-            //            {
-            //                var items = parser.ParseStream(fileStream, UTF8Encoding.UTF8);
-            //                Subtitles.Text = items[0].Lines[0];
-            //            }
-            //        };
-            //        worker.RunWorkerAsync();
 
-            //        //this.Player.URL = "http://localhost:1337";
-            //        //axWmp.URL = "http://localhost:1337";
-            //    }
-            //}
-
-            //private void ModernWindow_Closing(object sender, CancelEventArgs e)
-            //{
-            //    NodeServerManager.CloseServer();
-            //}
-
-            //private void Button_Click(object sender, RoutedEventArgs e)
-            //{
-            //    //MessageBox.Show(Player.BufferingProgress.ToString("F1"));
-            //    Player.Play();
-            //}
+            if (File.Exists("hash.txt"))
+                File.Delete("hash.txt");
+            NodeServerManager.StartServer(Data.MagnetUri);
+            BackgroundWorker worker = new BackgroundWorker();
+            worker.DoWork += (sender, args) =>
+            {
+                while (true)
+                {
+                    if (File.Exists("hash.txt"))
+                        break;
+                }
+            };
+            worker.RunWorkerCompleted += (sender, args) =>
+            {
+                if (this.PlayRequested != null)
+                {
+                    File.Delete("hash.txt");
+                    this.PlayRequested(this, EventArgs.Empty);
+                }
+            };
+            worker.RunWorkerAsync();
         }
     }
 }
