@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 
 namespace DirectTorrent.Logic.Services
@@ -30,8 +31,12 @@ namespace DirectTorrent.Logic.Services
         {
             // Kills the server
             if (server != null)
+            {
+                if (File.Exists("hash.txt"))
+                    File.Delete("hash.txt");
                 if (!server.HasExited)
                     server.Kill();
+            }
         }
     }
 }

@@ -95,6 +95,8 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.Views
             //    first = false;
             //    timer.Start();
             //}
+            ((MovieVideoViewModel) this.DataContext).LoaderVisibility = Visibility.Collapsed;
+            ((MovieVideoViewModel) this.DataContext).MovieVisibility = Visibility.Visible;
             this.Slider.Maximum = Data.Runtime * 60;
             timer.Start();
         }

@@ -21,6 +21,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
 {
     class MovieVideoViewModel : GalaSoft.MvvmLight.ViewModelBase
     {
+        // TODO: Add subtitles
         public GalaSoft.MvvmLight.CommandWpf.RelayCommand PlayButtonClicked { get; private set; }
         public GalaSoft.MvvmLight.CommandWpf.RelayCommand PauseButtonClicked { get; private set; }
         public GalaSoft.MvvmLight.CommandWpf.RelayCommand StopButtonClicked { get; private set; }
@@ -74,6 +75,35 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                 {
                     this._currentSubtitle = value;
                     RaisePropertyChanged("CurrentSubtitle");
+                }
+            }
+        }
+
+        private Visibility _loaderVisibility = Visibility.Visible;
+        public Visibility LoaderVisibility
+        {
+            get { return this._loaderVisibility; }
+            set
+            {
+                if (this._loaderVisibility != value)
+                {
+                    this._loaderVisibility = value;
+                    RaisePropertyChanged("LoaderVisibility");
+                }
+            }
+            
+        }
+
+        private Visibility _movieVisibility = Visibility.Collapsed;
+        public Visibility MovieVisibility
+        {
+            get { return this._movieVisibility; }
+            set
+            {
+                if (this._movieVisibility != value)
+                {
+                    this._movieVisibility = value;
+                    RaisePropertyChanged("MovieVisibility");
                 }
             }
         }
