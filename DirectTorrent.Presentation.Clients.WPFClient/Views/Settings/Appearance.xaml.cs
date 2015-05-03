@@ -25,7 +25,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.Views.Settings
             InitializeComponent();
 
             // create and assign the appearance view model
-            this.DataContext = new DirectTorrent.Presentation.Clients.WPFClient.ViewModels.Settings.AppearanceViewModel();
+            //this.DataContext = new DirectTorrent.Presentation.Clients.WPFClient.ViewModels.Settings.AppearanceViewModel();
         }
     }
 }

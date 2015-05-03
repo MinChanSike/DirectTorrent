@@ -4,34 +4,30 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:DirectTorrent.Presentation.Clients.WPFClient.Views"
-    xmlns:ViewModels="clr-namespace:DirectTorrent.Presentation.Clients.WPFClient.ViewModels"
-    xmlns:wpfClient="clr-namespace:DirectTorrent.Presentation.Clients.WPFClient"
     xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
     xmlns:command="http://www.galasoft.ch/mvvmlight"
     xmlns:mui="http://firstfloorsoftware.com/ModernUI"
     x:Name="userControl" x:Class="DirectTorrent.Presentation.Clients.WPFClient.Views.Home"
-    mc:Ignorable="d"
-    d:DesignHeight="300" d:DesignWidth="300" Loaded="userControl_Loaded">
-    <UserControl.DataContext>
-        <ViewModels:HomeViewModel/>
-    </UserControl.DataContext>
+    mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="300" Loaded="userControl_Loaded" DataContext="{Binding Home, Source={StaticResource Locator}}">
+    
+
     <Grid x:Name="grid" Style="{StaticResource ContentRoot}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="160" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <StackPanel Width="130" Grid.Column="0" HorizontalAlignment="Left">
-            <TextBlock>Search:</TextBlock>
-            <TextBox Name="TbQuery" Text="{Binding QueryString}" KeyDown="TbQuery_KeyDown" Margin="0,0,0,25">
+            <TextBlock><Run Text="Search:"/></TextBlock>
+            <TextBox x:Name="TbQuery" Text="{Binding QueryString}" KeyDown="TbQuery_KeyDown" Margin="0,0,0,25">
                 <i:Interaction.Triggers>
-                    <local:RoutedEventTrigger RoutedEvent="TextBox.LostFocus">
+                    <i:EventTrigger EventName="LostFocus">
                         <command:EventToCommand Command="{Binding TextBoxLostFocus}"/>
-                    </local:RoutedEventTrigger>
+                    </i:EventTrigger>
                 </i:Interaction.Triggers>
             </TextBox>
             <!--<ComboBox x:Name="CbQuality" SelectedItem="{Binding SelectedQuality}"/>-->
             <!--<xctk:ByteUpDown Value="{Binding SelectedMinimumRating}" Maximum="9"/>-->
-            <TextBlock>Sort by:</TextBlock>
+            <TextBlock><Run Text="Sort by:"/></TextBlock>
             <ComboBox x:Name="CbSort" SelectedItem="{Binding SelectedSort}" Margin="0,0,0,10">
                 <ComboBox.Resources>
                     <local:EnumStringConverter x:Key="EnumStringConverter"/>
@@ -42,7 +38,7 @@
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
-            <TextBlock>Order by:</TextBlock>
+            <TextBlock><Run Text="Order by:"/></TextBlock>
             <ComboBox x:Name="CbOrder" SelectedItem="{Binding SelectedOrder}"/>
         </StackPanel>
         <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding LoaderVisibility}">
@@ -51,9 +47,9 @@
         </StackPanel>
         <ScrollViewer x:Name="scrollViewer" Grid.Column="1" Visibility="{Binding MoviesVisibility}">
             <i:Interaction.Triggers>
-                <local:RoutedEventTrigger RoutedEvent="ScrollViewer.ScrollChanged">
+                <i:EventTrigger EventName="ScrollChanged">
                     <command:EventToCommand Command="{Binding ScrollChangedCommand}" PassEventArgsToCommand="True"/>
-                </local:RoutedEventTrigger>
+                </i:EventTrigger>
             </i:Interaction.Triggers>
             <StackPanel Orientation="Vertical">
                 <ItemsControl ItemsSource="{Binding MovieList, Mode=OneWay}">
@@ -61,10 +57,10 @@
                         <DataTemplate>
                             <StackPanel Orientation="Vertical">
                                 <i:Interaction.Triggers>
-                                    <local:RoutedEventTrigger RoutedEvent="StackPanel.MouseLeftButtonUp">
+                                    <i:EventTrigger EventName="MouseLeftButtonUp">
                                         <command:EventToCommand Command="{Binding DataContext.MovieClicked, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Home}}}" CommandParameter="{Binding Id, Mode=OneWay}"/>
                                         <!--<command:EventToCommand Command="NavigationCommands.GoToPage" CommandParameter="/Views/MovieDetails.xaml"/>-->
-                                    </local:RoutedEventTrigger>
+                                    </i:EventTrigger>
                                 </i:Interaction.Triggers>
                                 <StackPanel.Style>
                                     <Style TargetType="{x:Type StackPanel}">
@@ -77,7 +73,7 @@
                                 </StackPanel.Style>
                                 <Image Source="{Binding Image}" Height="200" Stretch="Uniform" />
                                 <TextBlock Text="{Binding Name}" MaxWidth="145" HorizontalAlignment="Center"
-                                       FontWeight="Bold" TextTrimming="CharacterEllipsis" />
+									FontWeight="Bold" TextTrimming="CharacterEllipsis" />
                                 <TextBlock Text="{Binding Year}" MaxWidth="145" HorizontalAlignment="Center" />
                             </StackPanel>
                         </DataTemplate>

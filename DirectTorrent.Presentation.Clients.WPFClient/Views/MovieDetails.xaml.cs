@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using DirectTorrent.Presentation.Clients.WPFClient.ViewModels;
 using FirstFloor.ModernUI.Windows;
 using FirstFloor.ModernUI.Windows.Controls;
+using GalaSoft.MvvmLight.Messaging;
 
 namespace DirectTorrent.Presentation.Clients.WPFClient.Views
 {
@@ -39,14 +40,10 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.Views
 
         void IContent.OnNavigatedTo(FirstFloor.ModernUI.Windows.Navigation.NavigationEventArgs e)
         {
-            if (Data.MovieId != -1)
+            if ((this.DataContext as MovieDetailsViewModel).MovieId == -1)
             {
-                    ((MovieDetailsViewModel)this.DataContext).SetNewMovie(Data.MovieId);
-            }
-            else
-            {
-                ((ModernWindow)Application.Current.MainWindow).ContentSource = new Uri("/Views/Home.xaml", UriKind.Relative);
-                ModernDialog.ShowMessage("Please select a movie first!", "No movie selected!", MessageBoxButton.OK);
+                (Application.Current.MainWindow as MainWindow).ContentSource = new Uri("/Views/Home.xaml", UriKind.Relative);
+                ModernDialog.ShowMessage("Please select a movie first!", "No movie selected.", MessageBoxButton.OK);
             }
         }
 

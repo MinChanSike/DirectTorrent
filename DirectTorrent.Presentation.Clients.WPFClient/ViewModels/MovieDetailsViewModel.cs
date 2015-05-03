@@ -19,6 +19,7 @@ using FirstFloor.ModernUI.Presentation;
 using FirstFloor.ModernUI.Windows.Controls;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
+using GalaSoft.MvvmLight.Messaging;
 using MovieDetails = DirectTorrent.Logic.Models.MovieDetails;
 
 namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
@@ -33,14 +34,12 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             Excellent
         };
 
-        public enum ReproductionMethod
-        {
-            WMP,
-            Browser,
-            Local
-        };
-
-        public static int CurrentId { get; private set; }
+        //public enum ReproductionMethod
+        //{
+        //    WMP,
+        //    Browser,
+        //    Local
+        //};
 
         private BitmapImage _movieImage;
         private string _movieTitle;
@@ -50,12 +49,15 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
         private string _movieGenre;
         private Uri _imdbLink;
         private double _movieRating;
+        private string _magnetUri;
         private Visibility _loaderVisibility = Visibility.Visible;
         private Visibility _movieVisibility = Visibility.Collapsed;
         private TorrentHealth _movieHealth;
         private bool _hasFhd = false;
         private Quality _selectedQuality = Quality.HD;
         private Torrent[] torrents = new Torrent[3];
+
+        public int MovieId { get; private set; }
 
         public GalaSoft.MvvmLight.CommandWpf.RelayCommand PlayButtonClicked { get; private set; }
 
@@ -191,11 +193,6 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                 }
             }
         }
-        public void SetNewMovie(int movieId)
-        {
-            Data.MovieId = movieId;
-            LoadMovie();
-        }
         public bool HasFhd
         {
             get { return this._hasFhd; }
@@ -227,23 +224,36 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
 
         public MovieDetailsViewModel(/*int movieId*/)
         {
+            this.MovieId = -1;
+
+            Messenger.Default.Register<int>(this, "movieId", id =>
+            {
+                this.MovieId = id;
+                LoadMovie();
+            });
+
             this.PlayButtonClicked = new GalaSoft.MvvmLight.CommandWpf.RelayCommand(() =>
             {
                 string magnetUri = String.Empty;
                 switch (SelectedQuality)
                 {
                     case Quality.HD:
-                        Data.MagnetUri = MovieRepository.GetTorrentMagnetUri(this.torrents[0].Hash, this.MovieTitle);
+                        _magnetUri = MovieRepository.GetTorrentMagnetUri(this.torrents[0].Hash, this.MovieTitle);
                         break;
                     case Quality.FHD:
-                        Data.MagnetUri = MovieRepository.GetTorrentMagnetUri(this.torrents[1].Hash, this.MovieTitle);
+                        _magnetUri = MovieRepository.GetTorrentMagnetUri(this.torrents[1].Hash, this.MovieTitle);
                         break;
                 }
                 var wind = new MovieVideo();
+                Messenger.Default.Send<int>(this.MovieDuration, "runtime");
+                Messenger.Default.Send<string>(this._magnetUri, "magnetUri");
                 wind.ShowDialog();
-
             });
-            LoadMovie();
+        }
+
+        ~MovieDetailsViewModel()
+        {
+            Messenger.Default.Unregister(this);
         }
 
         private void LoadMovie(/*int movId*/)
@@ -256,7 +266,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             {
                 try
                 {
-                    e.Result = MovieRepository.Yify.GetMovieDetails(Data.MovieId);
+                    e.Result = MovieRepository.Yify.GetMovieDetails((int)e.Argument);
                 }
                 catch (Exception)
                 {
@@ -278,7 +288,8 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                     var genre = genres.ToString();
                     genre = genre.Remove(genre.Length - 1);
                     this.MovieGenre = genre;
-                    Data.Runtime = movie.Runtime;
+                    //Messenger.Default.Send(movie.Runtime, "runtime");
+                    //Data.Runtime = movie.Runtime;
                     this.MovieImage = new BitmapImage(new Uri(movie.Images.LargeCoverImage, UriKind.Absolute));
                     this.ImdbLink = new Uri("http://www.imdb.com/title/" + movie.ImdbCode + "/", UriKind.Absolute);
                     movie.Torrents.CopyTo(this.torrents, 0);
@@ -290,12 +301,13 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                     }
                     else
                         SetTorrentHealth(0);
-                    CurrentId = Data.MovieId;
+                    this.MovieId = movie.Id;
                     this.LoaderVisibility = Visibility.Collapsed;
                     this.MovieVisibility = Visibility.Visible;
                 }
             };
-            loader.RunWorkerAsync();
+
+            loader.RunWorkerAsync(this.MovieId);
         }
 
         private void SetTorrentHealth(int torrentId)

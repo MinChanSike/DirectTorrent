@@ -21,6 +21,7 @@ using System.Runtime.Remoting.Channels;
 using System.Windows.Threading;
 using DirectTorrent.Presentation.Clients.WPFClient.ViewModels;
 using FirstFloor.ModernUI.Windows;
+using GalaSoft.MvvmLight.Messaging;
 
 namespace DirectTorrent.Presentation.Clients.WPFClient.Views
 {
@@ -35,6 +36,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.Views
         public MovieVideo()
         {
             InitializeComponent();
+            Messenger.Default.Register<int>(this, "runtime", r => { this.Slider.Maximum = r * 60; });
             //this.Player.Play();
             ((MovieVideoViewModel)this.DataContext).PlayRequested += (sender, args) =>
             {
@@ -95,15 +97,16 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.Views
             //    first = false;
             //    timer.Start();
             //}
-            ((MovieVideoViewModel) this.DataContext).LoaderVisibility = Visibility.Collapsed;
-            ((MovieVideoViewModel) this.DataContext).MovieVisibility = Visibility.Visible;
-            this.Slider.Maximum = Data.Runtime * 60;
+            ((MovieVideoViewModel)this.DataContext).LoaderVisibility = Visibility.Collapsed;
+            ((MovieVideoViewModel)this.DataContext).MovieVisibility = Visibility.Visible;
+            //this.Slider.Maximum = Data.Runtime * 60;
             timer.Start();
         }
 
         private void ModernWindow_Closing(object sender, CancelEventArgs e)
         {
             NodeServerManager.CloseServer();
+            Messenger.Default.Unregister(this);
         }
     }
 

@@ -27,6 +27,7 @@ using FirstFloor.ModernUI.Presentation;
 using FirstFloor.ModernUI.Windows;
 using FirstFloor.ModernUI.Windows.Controls;
 using GalaSoft.MvvmLight.CommandWpf;
+using GalaSoft.MvvmLight.Messaging;
 
 namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
 {
@@ -173,10 +174,18 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             this.TextBoxLostFocus = new GalaSoft.MvvmLight.CommandWpf.RelayCommand(() => LoadMovies(true));
             this.MovieClicked = new RelayCommand<int>(x =>
             {
-                Data.MovieId = x;
+                //Data.MovieId = x;
+                Messenger.Default.Send<int>(x, "movieId");
                 (Application.Current.MainWindow as MainWindow).ContentSource = new Uri("/Views/MovieDetails.xaml", UriKind.Relative);
+                //this.MovieClickedId = x;
+                //Messenger.Default.
                 //_modernNavigationService.NavigateTo(ViewModelLocator.MovieDetailsPageKey, x);
             });
+        }
+
+        ~HomeViewModel()
+        {
+            Messenger.Default.Unregister(this);
         }
 
         private void LoadMovies(bool reset)

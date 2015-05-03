@@ -16,6 +16,7 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using System.IO;
 using DirectTorrent.Logic.Services;
+using GalaSoft.MvvmLight.Messaging;
 
 namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
 {
@@ -91,7 +92,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                     RaisePropertyChanged("LoaderVisibility");
                 }
             }
-            
+
         }
 
         private Visibility _movieVisibility = Visibility.Collapsed;
@@ -108,8 +109,11 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             }
         }
 
+        public string MagnetUri = string.Empty;
+
         public MovieVideoViewModel()
         {
+            Messenger.Default.Register<string>(this, "magnetUri", uri => { NodeServerManager.StartServer(uri); });
             this.MouseWheelMove = new RelayCommand<MouseWheelEventArgs>((e) =>
             {
                 this.Volume += e.Delta * 1.0 / 100;
@@ -157,7 +161,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
 
             if (File.Exists("hash.txt"))
                 File.Delete("hash.txt");
-            NodeServerManager.StartServer(Data.MagnetUri);
+            //NodeServerManager.StartServer(this.MagnetUri);
             BackgroundWorker worker = new BackgroundWorker();
             worker.DoWork += (sender, args) =>
             {
