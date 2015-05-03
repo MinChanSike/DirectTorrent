@@ -28,7 +28,7 @@ namespace DirectTorrent.Data.YifySubtitles.ApiWrapper
             }
             catch (WebException)
             {
-                throw new Exception("No internet connection.");
+                throw new WebException("No internet connection.");
             }
         }
     }

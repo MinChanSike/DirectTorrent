@@ -117,6 +117,10 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
         {
             Messenger.Default.Register<string>(this, "magnetUri", uri => { NodeServerManager.StartServer(uri); });
             Messenger.Default.Register<string>(this, "guid", r => { this.guid = r; });
+            Messenger.Default.Register<string>(this, "subtitle", s =>
+            {
+                var test = 2;
+            });
 
             this.MouseWheelMove = new RelayCommand<MouseWheelEventArgs>((e) =>
             {

@@ -113,10 +113,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="ModernWindow2.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\MovieDetails.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -130,9 +126,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Compile Include="Models\HomeMovieItem.cs" />
-    <Compile Include="ModernWindow2.xaml.cs">
-      <DependentUpon>ModernWindow2.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>

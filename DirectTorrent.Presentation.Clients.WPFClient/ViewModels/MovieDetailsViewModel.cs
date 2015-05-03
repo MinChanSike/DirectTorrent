@@ -56,6 +56,9 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
         private bool _hasFhd = false;
         private Quality _selectedQuality = Quality.HD;
         private Torrent[] torrents = new Torrent[3];
+        private List<SubtitleGroup> _subtitles = new List<SubtitleGroup>();
+        private SubtitleGroup _selectedSubtitle;
+        private Visibility _subtitleVisibility = Visibility.Collapsed;
 
         public int MovieId { get; private set; }
 
@@ -221,6 +224,46 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                 }
             }
         }
+        public List<SubtitleGroup> Subtitles
+        {
+            get
+            {
+                return this._subtitles;
+            }
+            private set
+            {
+                if (this._subtitles != value)
+                {
+                    this._subtitles = value;
+                    RaisePropertyChanged("Subtitles");
+                }
+            }
+        }
+        public Visibility SubtitleVisibility
+        {
+            get { return this._subtitleVisibility; }
+            private set
+            {
+                if (this._subtitleVisibility != value)
+                {
+                    this._subtitleVisibility = value;
+                    RaisePropertyChanged("SubtitleVisibility");
+                }
+            }
+        }
+
+        public SubtitleGroup SelectedSubtitle
+        {
+            get { return this._selectedSubtitle; }
+            set
+            {
+                if (this._selectedSubtitle != value)
+                {
+                    this._selectedSubtitle = value;
+                    RaisePropertyChanged("SelectedSubtitle");
+                }
+            }
+        }
 
         public MovieDetailsViewModel(/*int movieId*/)
         {
@@ -245,9 +288,10 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                         break;
                 }
                 var wind = new MovieVideo();
-                wind.Title = this.MovieTitle + " (" +this.MovieYear+ ")";
+                wind.Title = this.MovieTitle + " (" + this.MovieYear + ")";
                 Messenger.Default.Send<int>(this.MovieDuration, "runtime");
                 Messenger.Default.Send<string>(this._magnetUri, "magnetUri");
+                Messenger.Default.Send<string>(this.SelectedSubtitle.Subtitles.Aggregate((i1, i2) => i1.Rating > i2.Rating ? i1 : i2).Url.ToString(), "subtitle");
                 wind.ShowDialog();
             });
         }
@@ -263,11 +307,38 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             this.MovieVisibility = Visibility.Collapsed;
 
             BackgroundWorker loader = new BackgroundWorker();
+            BackgroundWorker subtitleLoader = new BackgroundWorker();
+            subtitleLoader.DoWork += (sender, e) =>
+            {
+                try
+                {
+                    e.Result = SubtitleRepository.GetSubtitlesByImdbCode((string)e.Argument);
+                }
+                catch (Exception)
+                {
+                    e.Cancel = true;
+                }
+            };
+
+            subtitleLoader.RunWorkerCompleted += (sender, e) =>
+            {
+                if (!e.Cancelled)
+                {
+                    this.Subtitles = e.Result as List<SubtitleGroup>;
+                    this.SelectedSubtitle = this.Subtitles[0];
+                    this.SubtitleVisibility = Visibility.Visible;
+                }
+            };
+
             loader.DoWork += (sender, e) =>
             {
                 try
                 {
                     e.Result = MovieRepository.Yify.GetMovieDetails((int)e.Argument);
+                }
+                catch (KeyNotFoundException)
+                {
+
                 }
                 catch (Exception)
                 {
@@ -305,6 +376,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                     this.MovieId = movie.Id;
                     this.LoaderVisibility = Visibility.Collapsed;
                     this.MovieVisibility = Visibility.Visible;
+                    subtitleLoader.RunWorkerAsync(movie.ImdbCode);
                 }
             };
 

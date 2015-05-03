@@ -12,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-
+using DirectTorrent.Logic.Models;
 using DirectTorrent.Presentation.Clients.WPFClient.ViewModels;
 using FirstFloor.ModernUI.Windows;
 using FirstFloor.ModernUI.Windows.Controls;
@@ -63,6 +63,28 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.Views
         {
             //throw new NotImplementedException();
             return value.Equals(true) ? parameter : Binding.DoNothing;
+        }
+    }
+
+    public class CapitalizeLanguageConverter : IValueConverter
+    {
+
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            string language = (string)value;
+            language = language.Insert(0, Char.ToUpper(language[0]).ToString());
+            language = language.Remove(1, 1);
+            if (language.Contains("-"))
+            {
+                language = language.Insert(language.IndexOf("-") + 1, Char.ToUpper(language[language.IndexOf("-") + 1]).ToString());
+                language = language.Remove(language.IndexOf("-") + 2, 1);
+            }
+            return language;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }

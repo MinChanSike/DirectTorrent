@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,10 +33,19 @@ namespace DirectTorrent.Data.YifySubtitles.ApiWrapper
         internal ApiResponse(ApiResponseRaw rawResponse)
         {
             this.SubtitleGroups = new List<SubtitleGroup>();
+            JObject subs;
             this.Success = rawResponse.Success;
             this.LastModified = rawResponse.LastModified;
             this.SubtitleCount = rawResponse.SubtitleCount;
-            var subs = rawResponse.Subtitles.First.First as JObject;
+            try
+            {
+                subs = rawResponse.Subtitles.First.First as JObject;
+            }
+            catch (Exception)
+            {
+                throw new KeyNotFoundException("No subtitles were found.");
+            }
+            
             var langs = subs.Properties().Select(x => x.Name).ToList();
             foreach (var lang in langs)
             {

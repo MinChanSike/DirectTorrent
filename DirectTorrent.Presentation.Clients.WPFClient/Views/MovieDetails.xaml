@@ -13,6 +13,7 @@
 
     <UserControl.Resources>
         <local:QualityToRadioButtonConverter x:Key="QualityToRadioButtonConverter"/>
+        <local:CapitalizeLanguageConverter x:Key="CapitalizeLanguageConverter"/>
     </UserControl.Resources>
     <Grid Style="{StaticResource ContentRoot}">
         <Grid.ColumnDefinitions>
@@ -39,6 +40,13 @@
         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,25" Visibility="{Binding MovieVisibility}">
             <RadioButton GroupName="MovieQuality" Content="720p" IsChecked="{Binding SelectedQuality, Converter={StaticResource QualityToRadioButtonConverter}, ConverterParameter={x:Static enum:Quality.HD}}" Margin="0,0,10,0"/>
             <RadioButton GroupName="MovieQuality" Content="1080p" IsEnabled="{Binding HasFhd}" IsChecked="{Binding SelectedQuality,  Converter={StaticResource QualityToRadioButtonConverter}, ConverterParameter={x:Static enum:Quality.FHD}}" Margin="0,0,20,0"/>
+            <ComboBox Visibility="{Binding SubtitleVisibility}" ItemsSource="{Binding Subtitles}" SelectedItem="{Binding SelectedSubtitle}" Width="150" Margin="0,0,25,0">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock HorizontalAlignment="Center" Text="{Binding Language, Converter={StaticResource CapitalizeLanguageConverter}}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
             <mui:ModernButton Command="{Binding PlayButtonClicked}" Content="Watch" IconData="F1 M 30.0833,22.1667L 50.6665,37.6043L 50.6665,38.7918L 30.0833,53.8333L 30.0833,22.1667 Z " IconHeight="18" IconWidth="18" EllipseDiameter="32" EllipseStrokeThickness="4" />
         </StackPanel>
     </Grid>

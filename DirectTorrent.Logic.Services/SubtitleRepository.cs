@@ -15,7 +15,8 @@ namespace DirectTorrent.Logic.Services
         {
             var temp = new List<SubtitleGroup>();
             var source = ApiWrapper.GetSubtitlesByImdb(imdbCode);
-            source.SubtitleGroups.ForEach(x=>temp.Add(new SubtitleGroup(x)));
+            source.SubtitleGroups.ForEach(x => temp.Add(new SubtitleGroup(x)));
+
             return temp;
         }
     }
