@@ -31,6 +31,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirectTorrent.Logic.NodeSer
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirectTorrent.Presentation.Clients.WPFClient", "DirectTorrent.Presentation.Clients.WPFClient\DirectTorrent.Presentation.Clients.WPFClient.csproj", "{8ACA8EF5-F4AB-4B93-960A-7AC06407D29C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "YifySubtitles", "YifySubtitles", "{3F86AF9D-C45A-4102-82C5-89D0C16F2C62}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirectTorrent.Data.YifySubtitles.ApiWrapper", "DirectTorrent.Data.YifySubtitles.ApiWrapper\DirectTorrent.Data.YifySubtitles.ApiWrapper.csproj", "{D18D4AED-EC4F-45EA-A944-2B278AF234CF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirectTorrent.Data.YifySubtitles.Models", "DirectTorrent.Data.YifySubtitles.Models\DirectTorrent.Data.YifySubtitles.Models.csproj", "{62F9AC03-AAB6-4137-BFA5-662033B9F917}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +93,18 @@ Global
 		{8ACA8EF5-F4AB-4B93-960A-7AC06407D29C}.Release|Any CPU.Build.0 = Release|x86
 		{8ACA8EF5-F4AB-4B93-960A-7AC06407D29C}.Release|x86.ActiveCfg = Release|x86
 		{8ACA8EF5-F4AB-4B93-960A-7AC06407D29C}.Release|x86.Build.0 = Release|x86
+		{D18D4AED-EC4F-45EA-A944-2B278AF234CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D18D4AED-EC4F-45EA-A944-2B278AF234CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D18D4AED-EC4F-45EA-A944-2B278AF234CF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D18D4AED-EC4F-45EA-A944-2B278AF234CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D18D4AED-EC4F-45EA-A944-2B278AF234CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D18D4AED-EC4F-45EA-A944-2B278AF234CF}.Release|x86.ActiveCfg = Release|Any CPU
+		{62F9AC03-AAB6-4137-BFA5-662033B9F917}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62F9AC03-AAB6-4137-BFA5-662033B9F917}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62F9AC03-AAB6-4137-BFA5-662033B9F917}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{62F9AC03-AAB6-4137-BFA5-662033B9F917}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62F9AC03-AAB6-4137-BFA5-662033B9F917}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62F9AC03-AAB6-4137-BFA5-662033B9F917}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -100,5 +118,8 @@ Global
 		{7C278DA5-20C1-43E1-8D77-F354F98B62CF} = {5F000477-FF77-45EB-A750-C4CE237E6AEC}
 		{5B7716AB-0CB5-4E43-BB66-69D8074560A4} = {E08E3848-6560-42EC-998F-EE7E55F6D961}
 		{8ACA8EF5-F4AB-4B93-960A-7AC06407D29C} = {7C278DA5-20C1-43E1-8D77-F354F98B62CF}
+		{3F86AF9D-C45A-4102-82C5-89D0C16F2C62} = {1C94DE42-5314-4878-BEA4-4E155AC0497E}
+		{D18D4AED-EC4F-45EA-A944-2B278AF234CF} = {3F86AF9D-C45A-4102-82C5-89D0C16F2C62}
+		{62F9AC03-AAB6-4137-BFA5-662033B9F917} = {3F86AF9D-C45A-4102-82C5-89D0C16F2C62}
 	EndGlobalSection
 EndGlobal

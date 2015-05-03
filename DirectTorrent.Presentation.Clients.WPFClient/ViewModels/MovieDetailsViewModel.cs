@@ -245,6 +245,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                         break;
                 }
                 var wind = new MovieVideo();
+                wind.Title = this.MovieTitle + " (" +this.MovieYear+ ")";
                 Messenger.Default.Send<int>(this.MovieDuration, "runtime");
                 Messenger.Default.Send<string>(this._magnetUri, "magnetUri");
                 wind.ShowDialog();

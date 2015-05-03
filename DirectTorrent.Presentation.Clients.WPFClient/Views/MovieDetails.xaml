@@ -8,7 +8,8 @@
              xmlns:local="clr-namespace:DirectTorrent.Presentation.Clients.WPFClient.Views"
              x:Class="DirectTorrent.Presentation.Clients.WPFClient.Views.MovieDetails"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300" MinWidth="350" MinHeight="350" DataContext="{Binding MovieDetails, Source={StaticResource Locator}}">
+             d:DesignHeight="300" d:DesignWidth="300"
+             DataContext="{Binding MovieDetails, Source={StaticResource Locator}}">
 
     <UserControl.Resources>
         <local:QualityToRadioButtonConverter x:Key="QualityToRadioButtonConverter"/>

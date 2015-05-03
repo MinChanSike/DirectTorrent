@@ -16,6 +16,7 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using System.IO;
 using DirectTorrent.Logic.Services;
+using GalaSoft.MvvmLight.Ioc;
 using GalaSoft.MvvmLight.Messaging;
 
 namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
@@ -110,10 +111,13 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
         }
 
         public string MagnetUri = string.Empty;
+        private string guid;
 
         public MovieVideoViewModel()
         {
             Messenger.Default.Register<string>(this, "magnetUri", uri => { NodeServerManager.StartServer(uri); });
+            Messenger.Default.Register<string>(this, "guid", r => { this.guid = r; });
+
             this.MouseWheelMove = new RelayCommand<MouseWheelEventArgs>((e) =>
             {
                 this.Volume += e.Delta * 1.0 / 100;
@@ -180,6 +184,12 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                 }
             };
             worker.RunWorkerAsync();
+        }
+
+        ~MovieVideoViewModel()
+        {
+            Messenger.Default.Unregister(this);
+            SimpleIoc.Default.Unregister<MovieVideoViewModel>(guid);
         }
     }
 }

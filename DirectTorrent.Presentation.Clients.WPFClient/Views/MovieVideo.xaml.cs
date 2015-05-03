@@ -21,6 +21,7 @@ using System.Runtime.Remoting.Channels;
 using System.Windows.Threading;
 using DirectTorrent.Presentation.Clients.WPFClient.ViewModels;
 using FirstFloor.ModernUI.Windows;
+using GalaSoft.MvvmLight.Ioc;
 using GalaSoft.MvvmLight.Messaging;
 
 namespace DirectTorrent.Presentation.Clients.WPFClient.Views
@@ -30,6 +31,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.Views
     /// </summary>
     public partial class MovieVideo : ModernWindow
     {
+        private string guid;
         private bool IsPlaying = false;
         private bool first = true;
         private DispatcherTimer timer;
@@ -115,6 +117,21 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.Views
         object IValueConverter.Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             return (double)value / 100;
+        }
+
+        object IValueConverter.ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class DoubleToTimespan : IValueConverter
+    {
+
+        object IValueConverter.Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            int dabl = (int)value;
+            return TimeSpan.FromSeconds(dabl);
         }
 
         object IValueConverter.ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

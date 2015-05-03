@@ -64,6 +64,7 @@
     <Compile Include="MovieRepository.cs" />
     <Compile Include="NodeServerManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SubtitleRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DirectTorrent.Data.Yify.ApiWrapper\DirectTorrent.Data.Yify.ApiWrapper.csproj">
@@ -73,6 +74,14 @@
     <ProjectReference Include="..\DirectTorrent.Data.Yify.Models\DirectTorrent.Data.Yify.Models.csproj">
       <Project>{cf058cc9-4a20-4cbc-a25f-48b01e79d828}</Project>
       <Name>DirectTorrent.Data.Yify.Models</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DirectTorrent.Data.YifySubtitles.ApiWrapper\DirectTorrent.Data.YifySubtitles.ApiWrapper.csproj">
+      <Project>{d18d4aed-ec4f-45ea-a944-2b278af234cf}</Project>
+      <Name>DirectTorrent.Data.YifySubtitles.ApiWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DirectTorrent.Data.YifySubtitles.Models\DirectTorrent.Data.YifySubtitles.Models.csproj">
+      <Project>{62f9ac03-aab6-4137-bfa5-662033b9f917}</Project>
+      <Name>DirectTorrent.Data.YifySubtitles.Models</Name>
     </ProjectReference>
     <ProjectReference Include="..\DirectTorrent.Logic.Models\DirectTorrent.Logic.Models.csproj">
       <Project>{a4b7f9d9-ca54-4ba0-aefb-f82bdb371f71}</Project>
