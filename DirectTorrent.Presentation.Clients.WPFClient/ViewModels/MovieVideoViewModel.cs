@@ -18,6 +18,11 @@ using System.IO;
 using DirectTorrent.Logic.Services;
 using GalaSoft.MvvmLight.Ioc;
 using GalaSoft.MvvmLight.Messaging;
+using System.IO.Compression;
+using System.Net;
+using System.Threading;
+using SubtitlesParser.Classes;
+using SubtitlesParser.Classes.Parsers;
 
 namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
 {
@@ -67,8 +72,8 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             }
         }
 
-        private string _currentSubtitle = "TEST";
-        public string CurrentSubtitle
+        private SubtitleItem _currentSubtitle = null;
+        public SubtitleItem CurrentSubtitle
         {
             get { return this._currentSubtitle; }
             private set
@@ -110,8 +115,23 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             }
         }
 
+        private Visibility _subtitleVisibility = Visibility.Collapsed;
+        public Visibility SubtitleVisibility
+        {
+            get { return this._subtitleVisibility; }
+            private set
+            {
+                if (this._subtitleVisibility != value)
+                {
+                    this._subtitleVisibility = value;
+                    RaisePropertyChanged("SubtitleVisibility");
+                }
+            }
+        }
+
         public string MagnetUri = string.Empty;
         private string guid;
+        private List<SubtitleItem> subs;
 
         public MovieVideoViewModel()
         {
@@ -119,7 +139,27 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             Messenger.Default.Register<string>(this, "guid", r => { this.guid = r; });
             Messenger.Default.Register<string>(this, "subtitle", s =>
             {
-                var test = 2;
+                if (File.Exists("subtitle.zip"))
+                    File.Delete("subtitle.zip");
+
+                if (File.Exists("subtitle.srt"))
+                    File.Delete("subtitle.srt");
+
+                this.SubtitleVisibility = Visibility.Visible;
+                WebClient client = new WebClient();
+                client.DownloadFile(s, "subtitle.zip");
+                using (ZipArchive archive = ZipFile.OpenRead("subtitle.zip"))
+                {
+                    archive.Entries[0].ExtractToFile("subtitle.srt");
+                }
+                var subParser = new SrtParser();
+                using (var fileStream = File.OpenRead("subtitle.srt"))
+                {
+                    this.subs = subParser.ParseStream(fileStream, Encoding.Default);
+                }
+                File.Delete("subtitle.zip");
+                File.Delete("subtitle.srt");
+                //MessageBox.Show(subs.First().Lines[0]);
             });
 
             this.MouseWheelMove = new RelayCommand<MouseWheelEventArgs>((e) =>
@@ -138,6 +178,15 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                     this.Position = (int)e.NewValue;
                     if (this.SeekRequested != null)
                         this.SeekRequested(this, this.Position);
+                }
+                else
+                {
+                    if (this.CurrentSubtitle != null && (this.CurrentSubtitle.EndTime / 1000) == this.Position)
+                        this.CurrentSubtitle = null;
+
+                    var sub = this.subs.FirstOrDefault(x => x.StartTime / 1000 == this.Position);
+                    if (sub != null)
+                        this.CurrentSubtitle = sub;
                 }
 
                 ManualSliderChange = true;
@@ -190,10 +239,10 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             worker.RunWorkerAsync();
         }
 
-        ~MovieVideoViewModel()
+        public void UnregisterViewModel()
         {
             Messenger.Default.Unregister(this);
-            SimpleIoc.Default.Unregister<MovieVideoViewModel>(guid);
+            SimpleIoc.Default.Unregister(guid);
         }
     }
 }

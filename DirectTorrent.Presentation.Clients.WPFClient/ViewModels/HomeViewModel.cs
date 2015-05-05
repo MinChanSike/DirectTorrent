@@ -183,11 +183,6 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             });
         }
 
-        ~HomeViewModel()
-        {
-            Messenger.Default.Unregister(this);
-        }
-
         private void LoadMovies(bool reset)
         {
             if (reset)

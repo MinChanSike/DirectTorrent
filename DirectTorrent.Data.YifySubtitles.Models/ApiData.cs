@@ -27,7 +27,7 @@ namespace DirectTorrent.Data.YifySubtitles.Models
             this.Id = id;
             this.HearingImpaired = hi;
             this.Rating = rating;
-            this.Url = new Uri("http://www.yifysubtitles.com/subtitle-api" + url, UriKind.Absolute);
+            this.Url = new Uri("http://www.yifysubtitles.com" + url, UriKind.Absolute);
         }
     }
 

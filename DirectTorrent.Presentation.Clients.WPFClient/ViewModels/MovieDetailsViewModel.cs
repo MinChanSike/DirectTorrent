@@ -291,20 +291,22 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                 wind.Title = this.MovieTitle + " (" + this.MovieYear + ")";
                 Messenger.Default.Send<int>(this.MovieDuration, "runtime");
                 Messenger.Default.Send<string>(this._magnetUri, "magnetUri");
-                Messenger.Default.Send<string>(this.SelectedSubtitle.Subtitles.Aggregate((i1, i2) => i1.Rating > i2.Rating ? i1 : i2).Url.ToString(), "subtitle");
+                if (this.Subtitles.Count != 0)
+                {
+                    var subUrl = this.SelectedSubtitle.Subtitles.Aggregate((i1, i2) => i1.Rating > i2.Rating ? i1 : i2).Url.ToString();
+                    Messenger.Default.Send<string>(subUrl, "subtitle");
+                }
                 wind.ShowDialog();
             });
-        }
-
-        ~MovieDetailsViewModel()
-        {
-            Messenger.Default.Unregister(this);
         }
 
         private void LoadMovie(/*int movId*/)
         {
             this.LoaderVisibility = Visibility.Visible;
             this.MovieVisibility = Visibility.Collapsed;
+            this.SubtitleVisibility = Visibility.Collapsed;
+
+            this.Subtitles.Clear();
 
             BackgroundWorker loader = new BackgroundWorker();
             BackgroundWorker subtitleLoader = new BackgroundWorker();

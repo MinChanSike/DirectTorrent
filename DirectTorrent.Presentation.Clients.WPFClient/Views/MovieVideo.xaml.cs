@@ -79,7 +79,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.Views
                 if (IsPlaying)
                 {
                     ((MovieVideoViewModel)this.DataContext).ManualSliderChange = false;
-                    ((MovieVideoViewModel)this.DataContext).Position = this.Player.Position.Seconds;
+                    ((MovieVideoViewModel)this.DataContext).Position = (int)this.Player.Position.TotalSeconds;
                 }
             };
         }
@@ -108,6 +108,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.Views
         private void ModernWindow_Closing(object sender, CancelEventArgs e)
         {
             NodeServerManager.CloseServer();
+            ((MovieVideoViewModel)this.DataContext).UnregisterViewModel();
             Messenger.Default.Unregister(this);
         }
     }
@@ -132,6 +133,32 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.Views
         {
             int dabl = (int)value;
             return TimeSpan.FromSeconds(dabl);
+        }
+
+        object IValueConverter.ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class ListToString : IValueConverter
+    {
+        object IValueConverter.Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return ((List<string>)value).Aggregate((f, s) => f + Environment.NewLine + s);
+        }
+
+        object IValueConverter.ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class VideoHeightToFontSize : IValueConverter
+    {
+        object IValueConverter.Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return (double)value / 12;
         }
 
         object IValueConverter.ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
