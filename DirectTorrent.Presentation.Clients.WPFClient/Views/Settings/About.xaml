@@ -20,7 +20,8 @@
                     Edge.JS - <Hyperlink>http://tjanczuk.github.io/edge/#/</Hyperlink><LineBreak />
                     Json.NET - <Hyperlink>http://www.newtonsoft.com/json</Hyperlink><LineBreak />
                     ModernUI - <Hyperlink>https://github.com/firstfloorsoftware/mui</Hyperlink><LineBreak />
-                    MvvmLight - <Hyperlink>http://www.mvvmlight.net/</Hyperlink>
+                    MvvmLight - <Hyperlink>http://www.mvvmlight.net/</Hyperlink> <LineBreak/>
+                    SubtitlesParser - <Hyperlink>https://github.com/AlexPoint/SubtitlesParser</Hyperlink>
                 </TextBlock>
             </StackPanel>
         </ScrollViewer>
