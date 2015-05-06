@@ -172,7 +172,7 @@ namespace DirectTorrent.Data.Yify.ApiWrapper
             catch (WebException)
             {
                 // No internet connection
-                throw new Exception("No internet connection.");
+                throw new WebException("No internet connection.");
             }
         }
 

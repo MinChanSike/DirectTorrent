@@ -66,21 +66,13 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
         public Sort SelectedSort
         {
             get { return this._selectedSort; }
-            set
-            {
-                if (Set(ref _selectedSort, value))
-                    Messenger.Default.Send<Sort>(value);
-            }
+            set { this.Set(ref this._selectedSort, value); }
         }
 
         public Order SelectedOrder
         {
             get { return this._selectedOrder; }
-            set
-            {
-                if (Set(ref _selectedOrder, value))
-                    Messenger.Default.Send<Order>(value);
-            }
+            set { this.Set(ref this._selectedOrder, value); }
         }
         //public byte SelectedMinimumRating
         //{
@@ -99,25 +91,25 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
         public string QueryString
         {
             get { return this._queryString; }
-            set { Set(ref _queryString, value); }
+            set { this.Set(ref this._queryString, value); }
         }
 
         public Visibility LoaderVisibility
         {
             get { return this._loaderVisibility; }
-            private set { Set(ref _loaderVisibility, value); }
+            private set { this.Set(ref this._loaderVisibility, value); }
         }
 
         public Visibility MoviesVisibility
         {
             get { return this._moviesVisibility; }
-            private set { Set(ref _moviesVisibility, value); }
+            private set { this.Set(ref this._moviesVisibility, value); }
         }
 
         public bool IsLoading
         {
             get { return this._isLoading; }
-            private set { Set(ref _isLoading, value); }
+            private set { this.Set(ref this._isLoading, value); }
         }
 
         public HomeViewModel(/*IModernNavigationService modernNavigationService*/)
@@ -149,8 +141,8 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                 //_modernNavigationService.NavigateTo(ViewModelLocator.MovieDetailsPageKey, x);
             });
 
-            Messenger.Default.Register<Sort>(this, async (sort) => await LoadMovies(true).ConfigureAwait(false));
-            Messenger.Default.Register<Order>(this, async (order) => await LoadMovies(true).ConfigureAwait(false));
+            Messenger.Default.Register<PropertyChangedMessage<Sort>>(this, async (sort) => await LoadMovies(true).ConfigureAwait(false));
+            Messenger.Default.Register<PropertyChangedMessage<Order>>(this, async (order) => await LoadMovies(true).ConfigureAwait(false));
 
             LoadMovies(false).ConfigureAwait(false);
         }

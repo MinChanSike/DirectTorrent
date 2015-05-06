@@ -67,202 +67,94 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
         public string MovieTitle
         {
             get { return this._movieTitle; }
-            private set
-            {
-                if (this._movieTitle != value)
-                {
-                    this._movieTitle = value;
-                    RaisePropertyChanged("MovieTitle");
-                }
-            }
+            private set { this.Set(ref this._movieTitle, value); }
         }
+
         public string MovieDescription
         {
             get { return this._movieDescription; }
-            private set
-            {
-                if (this._movieDescription != value)
-                {
-                    this._movieDescription = value;
-                    RaisePropertyChanged("MovieDescription");
-                }
-            }
+            private set { this.Set(ref this._movieDescription, value); }
         }
         public int MovieYear
         {
             get { return this._movieYear; }
-            private set
-            {
-                if (this._movieYear != value)
-                {
-                    this._movieYear = value;
-                    RaisePropertyChanged("MovieYear");
-                }
-            }
+            private set { this.Set(ref this._movieYear, value); }
         }
         public int MovieDuration
         {
             get { return this._movieDuration; }
-            private set
-            {
-                if (this._movieDuration != value)
-                {
-                    this._movieDuration = value;
-                    RaisePropertyChanged("MovieDuration");
-                }
-            }
+            private set { this.Set(ref this._movieDuration, value); }
         }
         public double MovieRating
         {
             get { return this._movieRating; }
-            private set
-            {
-                if (this._movieRating != value)
-                {
-                    this._movieRating = value;
-                    RaisePropertyChanged("MovieRating");
-                }
-            }
+            private set { this.Set(ref this._movieRating, value); }
         }
         public string MovieGenre
         {
             get { return this._movieGenre; }
-            private set
-            {
-                if (this._movieGenre != value)
-                {
-                    this._movieGenre = value;
-                    RaisePropertyChanged("MovieGenre");
-                }
-            }
+            private set { this.Set(ref this._movieGenre, value); }
         }
         public BitmapImage MovieImage
         {
             get { return this._movieImage; }
-            private set
-            {
-                if (this._movieImage != value)
-                {
-                    this._movieImage = value;
-                    RaisePropertyChanged("MovieImage");
-                }
-            }
+            private set { this.Set(ref this._movieImage, value); }
         }
         public Uri ImdbLink
         {
             get { return this._imdbLink; }
-            private set
-            {
-                if (this._imdbLink != value)
-                {
-                    this._imdbLink = value;
-                    RaisePropertyChanged("ImdbLink");
-                }
-            }
+            private set { this.Set(ref this._imdbLink, value); }
         }
         public Visibility LoaderVisibility
         {
             get { return this._loaderVisibility; }
-            private set
-            {
-                if (this._loaderVisibility != value)
-                {
-                    this._loaderVisibility = value;
-                    RaisePropertyChanged("LoaderVisibility");
-                }
-            }
+            private set { this.Set(ref this._loaderVisibility, value); }
         }
         public Visibility MovieVisibility
         {
             get { return this._movieVisibility; }
-            private set
-            {
-                if (this._movieVisibility != value)
-                {
-                    this._movieVisibility = value;
-                    RaisePropertyChanged("MovieVisibility");
-                }
-            }
+            private set { this.Set(ref this._movieVisibility, value); }
         }
         public TorrentHealth MovieHealth
         {
             get { return this._movieHealth; }
-            private set
-            {
-                if (this._movieHealth != value)
-                {
-                    this._movieHealth = value;
-                    RaisePropertyChanged("MovieHealth");
-                }
-            }
+            private set { this.Set(ref this._movieHealth, value); }
         }
         public bool HasFhd
         {
             get { return this._hasFhd; }
-            private set
-            {
-                if (this._hasFhd != value)
-                {
-                    this._hasFhd = value;
-                    RaisePropertyChanged("HasFhd");
-                }
-            }
+            private set { this.Set(ref this._hasFhd, value); }
         }
         public Quality SelectedQuality
         {
             get { return this._selectedQuality; }
             private set
             {
-                if (this._selectedQuality != value)
+                // TODO: Set torrent health via messenger?
+                if (this.Set(ref this._selectedQuality, value))
                 {
                     if (value == Quality.HD)
                         SetTorrentHealth(0);
                     else if (value == Quality.FHD)
                         SetTorrentHealth(1);
-                    this._selectedQuality = value;
-                    RaisePropertyChanged("SelectedQuality");
                 }
             }
         }
         public List<SubtitleGroup> Subtitles
         {
-            get
-            {
-                return this._subtitles;
-            }
-            private set
-            {
-                if (this._subtitles != value)
-                {
-                    this._subtitles = value;
-                    RaisePropertyChanged("Subtitles");
-                }
-            }
+            get { return this._subtitles; }
+            private set { this.Set(ref this._subtitles, value); }
         }
         public Visibility SubtitleVisibility
         {
             get { return this._subtitleVisibility; }
-            private set
-            {
-                if (this._subtitleVisibility != value)
-                {
-                    this._subtitleVisibility = value;
-                    RaisePropertyChanged("SubtitleVisibility");
-                }
-            }
+            private set { this.Set(ref this._subtitleVisibility, value); }
         }
 
         public SubtitleGroup SelectedSubtitle
         {
             get { return this._selectedSubtitle; }
-            set
-            {
-                if (this._selectedSubtitle != value)
-                {
-                    this._selectedSubtitle = value;
-                    RaisePropertyChanged("SelectedSubtitle");
-                }
-            }
+            set { this.Set(ref this._selectedSubtitle, value); }
         }
 
         public MovieDetailsViewModel(/*int movieId*/)
