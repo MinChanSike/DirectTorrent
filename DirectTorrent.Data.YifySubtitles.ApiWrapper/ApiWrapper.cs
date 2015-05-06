@@ -12,18 +12,17 @@ namespace DirectTorrent.Data.YifySubtitles.ApiWrapper
 {
     public static class ApiWrapper
     {
-        public static ApiResponse GetSubtitlesByImdb(string imdbCode)
+        public static async Task<ApiResponse> GetSubtitlesByImdb(string imdbCode)
         {
-            Stream stream;
             try
             {
-                stream =
-                    WebRequest.Create(string.Format("http://api.yifysubtitles.com/subs/{0}", imdbCode))
-                        .GetResponse()
-                        .GetResponseStream();
-                using (StreamReader sr = new StreamReader(stream))
+                var request = WebRequest.Create(string.Format("http://api.yifysubtitles.com/subs/{0}", imdbCode));
+                using (var response = await request.GetResponseAsync())
                 {
-                    return new ApiResponse(JsonConvert.DeserializeObject<ApiResponseRaw>(sr.ReadToEnd()));
+                    using (var reader = new StreamReader(response.GetResponseStream()))
+                    {
+                        return new ApiResponse(JsonConvert.DeserializeObject<ApiResponseRaw>(await reader.ReadToEndAsync()));
+                    }
                 }
             }
             catch (WebException)

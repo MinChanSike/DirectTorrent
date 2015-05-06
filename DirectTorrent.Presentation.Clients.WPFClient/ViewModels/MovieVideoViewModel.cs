@@ -131,35 +131,19 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
 
         public string MagnetUri = string.Empty;
         private string guid;
-        private List<SubtitleItem> subs;
+        private List<SubtitleItem> subs = new List<SubtitleItem>();
+        private SrtParser srtParser = new SrtParser();
 
         public MovieVideoViewModel()
         {
             Messenger.Default.Register<string>(this, "magnetUri", uri => { NodeServerManager.StartServer(uri); });
             Messenger.Default.Register<string>(this, "guid", r => { this.guid = r; });
-            Messenger.Default.Register<string>(this, "subtitle", s =>
+            Messenger.Default.Register<string>(this, "subtitle", async (s) =>
             {
-                if (File.Exists("subtitle.zip"))
-                    File.Delete("subtitle.zip");
-
-                if (File.Exists("subtitle.srt"))
-                    File.Delete("subtitle.srt");
-
                 this.SubtitleVisibility = Visibility.Visible;
-                WebClient client = new WebClient();
-                client.DownloadFile(s, "subtitle.zip");
-                using (ZipArchive archive = ZipFile.OpenRead("subtitle.zip"))
-                {
-                    archive.Entries[0].ExtractToFile("subtitle.srt");
-                }
-                var subParser = new SrtParser();
-                using (var fileStream = File.OpenRead("subtitle.srt"))
-                {
-                    this.subs = subParser.ParseStream(fileStream, Encoding.Default);
-                }
-                File.Delete("subtitle.zip");
-                File.Delete("subtitle.srt");
-                //MessageBox.Show(subs.First().Lines[0]);
+
+                this.subs.Clear();
+                this.subs.AddRange(await DownloadSubtitle(s));
             });
 
             this.MouseWheelMove = new RelayCommand<MouseWheelEventArgs>((e) =>
@@ -237,6 +221,35 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                 }
             };
             worker.RunWorkerAsync();
+        }
+
+        private async Task<IEnumerable<SubtitleItem>> DownloadSubtitle(string address)
+        {
+            try
+            {
+                var request = FileWebRequest.Create(address);
+                using (var response = await request.GetResponseAsync())
+                {
+                    using (var archive = new ZipArchive(response.GetResponseStream(), ZipArchiveMode.Read))
+                    {
+                        var entry = archive.Entries.FirstOrDefault();
+                        if (entry != null)
+                        {
+                            using (var stream = entry.Open())
+                            {
+                                using (var downloaded = new MemoryStream())
+                                {
+                                    await stream.CopyToAsync(downloaded);
+                                    return srtParser.ParseStream(downloaded, Encoding.Default);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            return new SubtitleItem[] { };
         }
 
         public void UnregisterViewModel()

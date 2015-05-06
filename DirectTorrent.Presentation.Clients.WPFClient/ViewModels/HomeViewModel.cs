@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
@@ -13,14 +14,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Threading;
-
 using DirectTorrent.Logic.Models;
 using DirectTorrent.Logic.Services;
-
 using DirectTorrent.Presentation.Clients.WPFClient.Models;
 using FirstFloor.ModernUI;
 using FirstFloor.ModernUI.Presentation;
@@ -166,12 +166,12 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
 
             MovieList = new ObservableCollection<HomeMovieItem>();
             LoadMovies(false);
-            this.ScrollChangedCommand = new RelayCommand<ScrollChangedEventArgs>((e) =>
+            this.ScrollChangedCommand = new RelayCommand<ScrollChangedEventArgs>(async (e) =>
             {
                 if (e.VerticalOffset == ((ScrollViewer)e.Source).ScrollableHeight && MoviesVisibility == Visibility.Visible)
-                    LoadMovies(false);
+                    await LoadMovies(false);
             });
-            this.TextBoxLostFocus = new GalaSoft.MvvmLight.CommandWpf.RelayCommand(() => LoadMovies(true));
+            this.TextBoxLostFocus = new GalaSoft.MvvmLight.CommandWpf.RelayCommand(async () => await LoadMovies(true));
             this.MovieClicked = new RelayCommand<int>(x =>
             {
                 //Data.MovieId = x;
@@ -183,7 +183,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             });
         }
 
-        private void LoadMovies(bool reset)
+        private async Task LoadMovies(bool reset)
         {
             if (reset)
             {
@@ -193,53 +193,40 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             }
             else
                 IsLoading = true;
-            BackgroundWorker loader = new BackgroundWorker();
-            loader.DoWork += (sender, e) =>
+
+            var movies = await MovieRepository.Yify.ListMovies(page: _currentPage/*, quality: _selectedQuality*/, sortBy: _selectedSort, orderBy: _selectedOrder, queryTerm: _queryString);
+            if (movies != null)
             {
-                try
+                if (reset)
                 {
-                    var lista = MovieRepository.Yify.ListMovies(page: _currentPage/*, quality: _selectedQuality*/, sortBy: _selectedSort, orderBy: _selectedOrder, queryTerm: _queryString);
-                    e.Result = lista;
+                    MovieList.Clear();
+                    Debug.WriteLine("Reset&Cleared");
                 }
-                catch (WebException)
+
+                foreach (var movie in movies.Select(x => new HomeMovieItem(x)))
                 {
-                    e.Cancel = true;
+                    MovieList.Add(movie);
                 }
-            };
-            loader.RunWorkerCompleted += (sender, e) =>
-            {
-                if (!e.Cancelled)
+
+                _currentPage++;
+                IsLoading = false;
+                if (MovieList.Count == 0)
                 {
-                    if (reset)
-                        MovieList.Clear();
-                    Dispatcher.CurrentDispatcher.Invoke(() =>
-                    {
-                        foreach (var movie in (IEnumerable<Movie>)e.Result)
-                        {
-                            MovieList.Add(new HomeMovieItem(movie));
-                        }
-                    });
-                    _currentPage++;
-                    IsLoading = false;
-                    if (MovieList.Count == 0)
-                    {
-                        LoaderVisibility = Visibility.Collapsed;
-                        MoviesVisibility = Visibility.Collapsed;
-                        ModernDialog.ShowMessage("Query has no results.", "No results!", MessageBoxButton.OK);
-                    }
-                    else
-                    {
-                        LoaderVisibility = Visibility.Collapsed;
-                        MoviesVisibility = Visibility.Visible;
-                    }
+                    LoaderVisibility = Visibility.Collapsed;
+                    MoviesVisibility = Visibility.Collapsed;
+                    ModernDialog.ShowMessage("Query has no results.", "No results!", MessageBoxButton.OK);
                 }
                 else
                 {
                     LoaderVisibility = Visibility.Collapsed;
-                    ModernDialog.ShowMessage("No internet connection!" + Environment.NewLine + "Please restart the application with internet access.", "No internet access!", MessageBoxButton.OK);
+                    MoviesVisibility = Visibility.Visible;
                 }
-            };
-            loader.RunWorkerAsync();
+            }
+            else
+            {
+                LoaderVisibility = Visibility.Collapsed;
+                ModernDialog.ShowMessage("No internet connection!" + Environment.NewLine + "Please restart the application with internet access.", "No internet access!", MessageBoxButton.OK);
+            }
         }
     }
 }
