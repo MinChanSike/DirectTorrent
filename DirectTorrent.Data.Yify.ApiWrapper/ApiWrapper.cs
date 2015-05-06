@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Resources;
 using Newtonsoft.Json;
 using DirectTorrent.Data.Yify.Models;
+using System.Threading.Tasks;
 
 namespace DirectTorrent.Data.Yify.ApiWrapper
 {
@@ -98,27 +99,11 @@ namespace DirectTorrent.Data.Yify.ApiWrapper
         /// </summary>
         /// <param name="format">Sets the format in which to display the results in. DO NOT USE ANYTHING OTHER THAN JSON! (Experimental)</param>
         /// <returns>The ApiResponse representing the query result.</returns>
-        public static ApiResponse<UpcomingMoviesData> ListUpcomingMovies(Format format = Format.JSON)
+        public static Task<ApiResponse<UpcomingMoviesData>> ListUpcomingMovies(Format format = Format.JSON)
         {
-            // Getting the response
-            Stream stream;
-            try
-            {
-                stream =
-                    WebRequest.Create(string.Format("https://yts.to/api/v2/list_upcoming.{0}", ParseFormat(format)))
-                        .GetResponse()
-                        .GetResponseStream();
-                using (StreamReader sr = new StreamReader(stream))
-                {
-                    // Parsing the response and returning it
-                    return new ApiResponse<UpcomingMoviesData>(JsonConvert.DeserializeObject<ApiResponseRaw>(sr.ReadToEnd()));
-                }
-            }
-            catch (WebException)
-            {
-                // No internet connection
-                throw new Exception("No internet connection.");
-            }
+            var query = string.Format("https://yts.to/api/v2/list_upcoming.{0}", ParseFormat(format));
+
+            return Get<UpcomingMoviesData>(query);
         }
 
         /// <summary>
@@ -135,46 +120,24 @@ namespace DirectTorrent.Data.Yify.ApiWrapper
         /// <param name="orderBy">Sets the order in which the movies will be displayed.</param>
         /// <exception cref="ArgumentOutOfRangeException">Limit or rating values were out of range.</exception>
         /// <returns>The ApiResponse representing the query result.</returns>
-        public static ApiResponse<ListMoviesData> ListMovies(Format format = Format.JSON, byte limit = 20, uint page = 1,
+        public static Task<ApiResponse<ListMoviesData>> ListMovies(Format format = Format.JSON, byte limit = 20, uint page = 1,
             Quality quality = Quality.ALL, byte minimumRating = 0, string queryTerm = "", string genre = "ALL",
             Sort sortBy = Sort.DateAdded, Order orderBy = Order.Descending)
         {
             // Parameter value range checking
             if (limit > 50 || limit < 1)
                 throw new ArgumentOutOfRangeException("limit", limit, "Limit must be between 1 - 50 (inclusive).");
+            
             if (minimumRating > 9)
                 throw new ArgumentOutOfRangeException("minimumRating", minimumRating,
                     "Must be between 0 - 9 (inclusive).");
+            
             // Forming the request string
-            string apiReq =
-                string.Format(
+            string query = string.Format(
                     "limit={0}&page={1}&quality={2}&minimum_rating={3}&query_term={4}&genre={5}&sort_by={6}&order_by={7}",
-                    limit, page, ParseQuality(quality), minimumRating, queryTerm, genre, ParseSort(sortBy),
-                    ParseOrder(orderBy));
-            // Getting the response
-            Stream stream;
-            try
-            {
-                stream =
-                    WebRequest.Create(string.Format("https://yts.to/api/v2/list_movies.{0}?{1}", ParseFormat(format),
-                        apiReq))
-                        .GetResponse()
-                        .GetResponseStream();
-                using (StreamReader sr = new StreamReader(stream))
-                {
-                    // Parsing the response and returning it
-                    return new ApiResponse<ListMoviesData>(JsonConvert.DeserializeObject<ApiResponseRaw>(sr.ReadToEnd()));
-                }
-                //WebClient client = new WebClient();
-                //var response = client.DownloadString(string.Format("https://yts.re/api/v2/list_movies.{0}?{1}", ParseFormat(format),
-                //    apiReq));
-                //return new ApiResponse<ListMoviesData>(JsonConvert.DeserializeObject<ApiResponseRaw>(response));
-            }
-            catch (WebException)
-            {
-                // No internet connection
-                throw new WebException("No internet connection.");
-            }
+                    limit, page, ParseQuality(quality), minimumRating, queryTerm, genre, ParseSort(sortBy), ParseOrder(orderBy));
+
+            return Get<ListMoviesData>(string.Format("https://yts.to/api/v2/list_movies.{0}?{1}", ParseFormat(format), query));
         }
 
         /// <summary>
@@ -185,23 +148,25 @@ namespace DirectTorrent.Data.Yify.ApiWrapper
         /// <param name="withCast">Sets wether the response should hold information about the cast.</param>
         /// <param name="format">Sets the format in which to display the results in. DO NOT USE ANYTHING OTHER THAN JSON! (Experimental)</param>
         /// <returns>The ApiResponse representing the query result.</returns>
-        public static ApiResponse<MovieDetailsData> GetMovieDetails(int movieId, bool withImages = false, bool withCast = false,
+        public static Task<ApiResponse<MovieDetailsData>> GetMovieDetails(int movieId, bool withImages = false, bool withCast = false,
             Format format = Format.JSON)
         {
-            string apiReq = string.Format("movie_id={0}&with_images={1}&with_cast={2}", movieId, withImages, withCast);
-            // Getting the response
-            Stream stream;
+            var query = string.Format("movie_id={0}&with_images={1}&with_cast={2}", movieId, withImages, withCast);
+
+            return Get<MovieDetailsData>(string.Format("https://yts.to/api/v2/movie_details.{0}?{1}", ParseFormat(format), query));
+        }
+
+        private static async Task<ApiResponse<T>> Get<T>(string uri) where T : IDataModel
+        {
             try
             {
-                stream =
-                    WebRequest.Create(string.Format("https://yts.to/api/v2/movie_details.{0}?{1}", ParseFormat(format),
-                        apiReq))
-                        .GetResponse()
-                        .GetResponseStream();
-                using (StreamReader sr = new StreamReader(stream))
+                var request = WebRequest.Create(uri);
+                using (var response = await request.GetResponseAsync())
                 {
-                    // Parsing the response and returning it
-                    return new ApiResponse<MovieDetailsData>(JsonConvert.DeserializeObject<ApiResponseRaw>(sr.ReadToEnd()));
+                    using (var reader = new StreamReader(response.GetResponseStream()))
+                    {
+                        return new ApiResponse<T>(JsonConvert.DeserializeObject<ApiResponseRaw>(await reader.ReadToEndAsync()));
+                    }
                 }
             }
             catch (WebException)

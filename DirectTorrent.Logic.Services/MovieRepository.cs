@@ -60,19 +60,11 @@ namespace DirectTorrent.Logic.Services
             /// Reads a list of upcoming movies on Yify.
             /// </summary>
             /// <returns>A list of upcoming movies.</returns>
-            public static List<UpcomingMovie> ListUpcomingMovies()
+            public static async Task<IEnumerable<UpcomingMovie>> ListUpcomingMovies()
             {
-                var temp = new List<UpcomingMovie>();
-                // Queries Yify for upcoming movies
-                var source = ApiWrapper.ListUpcomingMovies();
-                // Maps DTOs to business models
-                source.Data.UpcomingMovies.ForEach(x =>
-                {
-                    var tempMov = new UpcomingMovie(x);
-                    temp.Add(tempMov);
-                });
+                var raw = await ApiWrapper.ListUpcomingMovies();
 
-                return temp;
+                return raw.Data.UpcomingMovies.Select(x => new UpcomingMovie(x));
             }
 
             /// <summary>
@@ -80,12 +72,12 @@ namespace DirectTorrent.Logic.Services
             /// </summary>
             /// <param name="movieId">The id of the movie that's details should get queried.</param>
             /// <returns>A detailed set of information for the queried movie.</returns>
-            public static MovieDetails GetMovieDetails(int movieId)
+            public static async Task<MovieDetails> GetMovieDetails(int movieId)
             {
                 // Queries Yify for movie details
-                MovieDetailsData temp = ApiWrapper.GetMovieDetails(movieId).Data;
+                var raw = await ApiWrapper.GetMovieDetails(movieId);
                 // Maps the DTO to the business model
-                return new MovieDetails(temp);
+                return new MovieDetails(raw.Data);
             }
 
             /// <summary>
@@ -100,21 +92,14 @@ namespace DirectTorrent.Logic.Services
             /// <param name="sortBy">The sorting parameter.</param>
             /// <param name="orderBy">The order in which the movies will be displayed.</param>
             /// <returns>A list of movies that match the query parameters.</returns>
-            public static List<Movie> ListMovies(byte limit = 20, uint page = 1,
+            public static async Task<IEnumerable<Movie>> ListMovies(byte limit = 20, uint page = 1,
                 DirectTorrent.Logic.Models.Quality quality = DirectTorrent.Logic.Models.Quality.ALL, byte minimumRating = 0, string queryTerm = "", string genre = "ALL",
                 DirectTorrent.Logic.Models.Sort sortBy = DirectTorrent.Logic.Models.Sort.DateAdded, DirectTorrent.Logic.Models.Order orderBy = DirectTorrent.Logic.Models.Order.Descending)
             {
-                var temp = new List<Movie>();
-                // Queries Yify for movies
-                var source = ApiWrapper.ListMovies(Format.JSON, limit, page, qualityToQuality(quality), minimumRating, queryTerm, genre,
+                var raw = await ApiWrapper.ListMovies(Format.JSON, limit, page, qualityToQuality(quality), minimumRating, queryTerm, genre,
                     sortToSort(sortBy), orderToOrder(orderBy));
-                // Maps DTOs to business models
-                source.Data.Movies.ForEach(x =>
-                {
-                    var tempMov = new Movie(x);
-                    temp.Add(tempMov);
-                });
-                return temp;
+
+                return raw.Data.Movies.Select(x => new Movie(x));
             }
 
             #region Enum Parsers

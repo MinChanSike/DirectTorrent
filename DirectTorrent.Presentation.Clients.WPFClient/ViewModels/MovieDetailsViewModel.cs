@@ -269,10 +269,10 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
         {
             this.MovieId = -1;
 
-            Messenger.Default.Register<int>(this, "movieId", id =>
+            Messenger.Default.Register<int>(this, "movieId", async (id) =>
             {
                 this.MovieId = id;
-                LoadMovie();
+                await LoadMovie();
             });
 
             this.PlayButtonClicked = new GalaSoft.MvvmLight.CommandWpf.RelayCommand(() =>
@@ -300,89 +300,63 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             });
         }
 
-        private void LoadMovie(/*int movId*/)
+        private async Task LoadMovie()
         {
             this.LoaderVisibility = Visibility.Visible;
             this.MovieVisibility = Visibility.Collapsed;
             this.SubtitleVisibility = Visibility.Collapsed;
 
-            this.Subtitles.Clear();
-
-            BackgroundWorker loader = new BackgroundWorker();
-            BackgroundWorker subtitleLoader = new BackgroundWorker();
-            subtitleLoader.DoWork += (sender, e) =>
+            try
             {
-                try
-                {
-                    e.Result = SubtitleRepository.GetSubtitlesByImdbCode((string)e.Argument);
-                }
-                catch (Exception)
-                {
-                    e.Cancel = true;
-                }
-            };
+                var movie = await MovieRepository.Yify.GetMovieDetails(MovieId);
 
-            subtitleLoader.RunWorkerCompleted += (sender, e) =>
+                this.MovieTitle = movie.Title;
+                this.MovieDescription = movie.DescriptionFull;
+                this.MovieYear = movie.Year;
+                this.MovieDuration = movie.Runtime;
+                this.MovieRating = movie.Rating;
+                StringBuilder genres = new StringBuilder();
+                movie.Genres.ForEach(x => genres.Append(x + "/"));
+                var genre = genres.ToString();
+                genre = genre.Remove(genre.Length - 1);
+                this.MovieGenre = genre;
+                //Messenger.Default.Send(movie.Runtime, "runtime");
+                //Data.Runtime = movie.Runtime;
+                this.MovieImage = new BitmapImage(new Uri(movie.Images.LargeCoverImage, UriKind.Absolute));
+                this.ImdbLink = new Uri("http://www.imdb.com/title/" + movie.ImdbCode + "/", UriKind.Absolute);
+                movie.Torrents.CopyTo(this.torrents, 0);
+                if (movie.Torrents.Count > 1)
+                {
+                    this.HasFhd = true;
+                    this.SelectedQuality = Quality.FHD;
+                    SetTorrentHealth(1);
+                }
+                else
+                    SetTorrentHealth(0);
+
+                this.LoaderVisibility = Visibility.Collapsed;
+                this.MovieVisibility = Visibility.Visible;
+
+                await LoadSubtitles(movie);
+            }
+            catch (KeyNotFoundException) { }
+        }
+
+        private async Task LoadSubtitles(MovieDetails movie)
+        {
+            Subtitles.Clear();
+            try
             {
-                if (!e.Cancelled)
-                {
-                    this.Subtitles = e.Result as List<SubtitleGroup>;
-                    this.SelectedSubtitle = this.Subtitles[0];
-                    this.SubtitleVisibility = Visibility.Visible;
-                }
-            };
-
-            loader.DoWork += (sender, e) =>
+                Subtitles.AddRange(await SubtitleRepository.GetSubtitlesByImdbCode(movie.ImdbCode));
+            }
+            catch (NullReferenceException) { }
+            catch (KeyNotFoundException) { }
+            catch { }
+            finally
             {
-                try
-                {
-                    e.Result = MovieRepository.Yify.GetMovieDetails((int)e.Argument);
-                }
-                catch (KeyNotFoundException)
-                {
-
-                }
-                catch (Exception)
-                {
-                    e.Cancel = true;
-                }
-            };
-            loader.RunWorkerCompleted += (sender, e) =>
-            {
-                if (!e.Cancelled)
-                {
-                    var movie = (MovieDetails)e.Result;
-                    this.MovieTitle = movie.Title;
-                    this.MovieDescription = movie.DescriptionFull;
-                    this.MovieYear = movie.Year;
-                    this.MovieDuration = movie.Runtime;
-                    this.MovieRating = movie.Rating;
-                    StringBuilder genres = new StringBuilder();
-                    movie.Genres.ForEach(x => genres.Append(x + "/"));
-                    var genre = genres.ToString();
-                    genre = genre.Remove(genre.Length - 1);
-                    this.MovieGenre = genre;
-                    //Messenger.Default.Send(movie.Runtime, "runtime");
-                    //Data.Runtime = movie.Runtime;
-                    this.MovieImage = new BitmapImage(new Uri(movie.Images.LargeCoverImage, UriKind.Absolute));
-                    this.ImdbLink = new Uri("http://www.imdb.com/title/" + movie.ImdbCode + "/", UriKind.Absolute);
-                    movie.Torrents.CopyTo(this.torrents, 0);
-                    if (movie.Torrents.Count > 1)
-                    {
-                        this.HasFhd = true;
-                        this.SelectedQuality = Quality.FHD;
-                        SetTorrentHealth(1);
-                    }
-                    else
-                        SetTorrentHealth(0);
-                    this.MovieId = movie.Id;
-                    this.LoaderVisibility = Visibility.Collapsed;
-                    this.MovieVisibility = Visibility.Visible;
-                    subtitleLoader.RunWorkerAsync(movie.ImdbCode);
-                }
-            };
-
-            loader.RunWorkerAsync(this.MovieId);
+                SelectedSubtitle = Subtitles.FirstOrDefault();
+                SubtitleVisibility = (Subtitles.Count > 0) ? Visibility.Visible : Visibility.Collapsed;
+            }
         }
 
         private void SetTorrentHealth(int torrentId)

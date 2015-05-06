@@ -11,13 +11,17 @@ namespace DirectTorrent.Logic.Services
 {
     public static class SubtitleRepository
     {
-        public static List<SubtitleGroup> GetSubtitlesByImdbCode(string imdbCode)
+        public static async Task<IEnumerable<SubtitleGroup>> GetSubtitlesByImdbCode(string imdbCode)
         {
-            var temp = new List<SubtitleGroup>();
-            var source = ApiWrapper.GetSubtitlesByImdb(imdbCode);
-            source.SubtitleGroups.ForEach(x => temp.Add(new SubtitleGroup(x)));
+            try
+            {
+                var response = await ApiWrapper.GetSubtitlesByImdb(imdbCode);
+                if (response.Success && response.SubtitleCount > 0)
+                    return response.SubtitleGroups.Select(x => new SubtitleGroup(x));
+            }
+            catch { }
 
-            return temp;
+            return new List<SubtitleGroup>();
         }
     }
 }
