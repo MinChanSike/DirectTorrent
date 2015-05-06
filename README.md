@@ -24,7 +24,7 @@ Automapper - http://automapper.org/
 Edge.JS - http://tjanczuk.github.io/edge/#/  
 Json.NET - http://www.newtonsoft.com/json  
 ModernUI - https://github.com/firstfloorsoftware/mui  
-MvvmLight - http://www.mvvmlight.net/
+MvvmLight - http://www.mvvmlight.net/  
 SubtitlesParser - https://github.com/AlexPoint/SubtitlesParser  
 
 
