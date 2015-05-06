@@ -42,7 +42,6 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
         //private byte _selectedMinimumRating = 0;
         private string _queryString;
         private bool _isLoading = false;
-
         private uint _currentPage = 1;
 
         public GalaSoft.MvvmLight.CommandWpf.RelayCommand<ScrollChangedEventArgs> ScrollChangedCommand { get; private set; }
@@ -69,25 +68,18 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             get { return this._selectedSort; }
             set
             {
-                if (this._selectedSort != value)
-                {
-                    this._selectedSort = value;
-                    RaisePropertyChanged("SelectedSort");
-                    LoadMovies(true);
-                }
+                if (Set(ref _selectedSort, value))
+                    Messenger.Default.Send<Sort>(value);
             }
         }
+
         public Order SelectedOrder
         {
             get { return this._selectedOrder; }
             set
             {
-                if (this._selectedOrder != value)
-                {
-                    this._selectedOrder = value;
-                    RaisePropertyChanged("SelectedOrder");
-                    LoadMovies(true);
-                }
+                if (Set(ref _selectedOrder, value))
+                    Messenger.Default.Send<Order>(value);
             }
         }
         //public byte SelectedMinimumRating
@@ -103,53 +95,29 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
         //        }
         //    }
         //}
+
         public string QueryString
         {
             get { return this._queryString; }
-            set
-            {
-                if (this._queryString != value)
-                {
-                    this._queryString = value;
-                    RaisePropertyChanged("QueryString");
-                }
-            }
+            set { Set(ref _queryString, value); }
         }
+
         public Visibility LoaderVisibility
         {
             get { return this._loaderVisibility; }
-            private set
-            {
-                if (this._loaderVisibility != value)
-                {
-                    this._loaderVisibility = value;
-                    RaisePropertyChanged("LoaderVisibility");
-                }
-            }
+            private set { Set(ref _loaderVisibility, value); }
         }
+
         public Visibility MoviesVisibility
         {
             get { return this._moviesVisibility; }
-            private set
-            {
-                if (this._moviesVisibility != value)
-                {
-                    this._moviesVisibility = value;
-                    RaisePropertyChanged("MoviesVisibility");
-                }
-            }
+            private set { Set(ref _moviesVisibility, value); }
         }
+
         public bool IsLoading
         {
             get { return this._isLoading; }
-            private set
-            {
-                if (this._isLoading != value)
-                {
-                    this._isLoading = value;
-                    RaisePropertyChanged("IsLoading");
-                }
-            }
+            private set { Set(ref _isLoading, value); }
         }
 
         public HomeViewModel(/*IModernNavigationService modernNavigationService*/)
@@ -165,13 +133,12 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             //}
 
             MovieList = new ObservableCollection<HomeMovieItem>();
-            LoadMovies(false);
             this.ScrollChangedCommand = new RelayCommand<ScrollChangedEventArgs>(async (e) =>
             {
                 if (e.VerticalOffset == ((ScrollViewer)e.Source).ScrollableHeight && MoviesVisibility == Visibility.Visible)
-                    await LoadMovies(false);
+                    await LoadMovies(false).ConfigureAwait(false);
             });
-            this.TextBoxLostFocus = new GalaSoft.MvvmLight.CommandWpf.RelayCommand(async () => await LoadMovies(true));
+            this.TextBoxLostFocus = new GalaSoft.MvvmLight.CommandWpf.RelayCommand(async () => await LoadMovies(true).ConfigureAwait(false));
             this.MovieClicked = new RelayCommand<int>(x =>
             {
                 //Data.MovieId = x;
@@ -181,6 +148,11 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                 //Messenger.Default.
                 //_modernNavigationService.NavigateTo(ViewModelLocator.MovieDetailsPageKey, x);
             });
+
+            Messenger.Default.Register<Sort>(this, async (sort) => await LoadMovies(true).ConfigureAwait(false));
+            Messenger.Default.Register<Order>(this, async (order) => await LoadMovies(true).ConfigureAwait(false));
+
+            LoadMovies(false).ConfigureAwait(false);
         }
 
         private async Task LoadMovies(bool reset)
@@ -190,6 +162,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                 MoviesVisibility = Visibility.Collapsed;
                 LoaderVisibility = Visibility.Visible;
                 _currentPage = 1;
+                MovieList.Clear();
             }
             else
                 IsLoading = true;
@@ -197,12 +170,6 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             var movies = await MovieRepository.Yify.ListMovies(page: _currentPage/*, quality: _selectedQuality*/, sortBy: _selectedSort, orderBy: _selectedOrder, queryTerm: _queryString);
             if (movies != null)
             {
-                if (reset)
-                {
-                    MovieList.Clear();
-                    Debug.WriteLine("Reset&Cleared");
-                }
-
                 foreach (var movie in movies.Select(x => new HomeMovieItem(x)))
                 {
                     MovieList.Add(movie);
