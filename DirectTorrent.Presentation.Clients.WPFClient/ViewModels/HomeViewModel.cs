@@ -66,13 +66,13 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
         public Sort SelectedSort
         {
             get { return this._selectedSort; }
-            set { this.Set(ref this._selectedSort, value); }
+            set { this.Set(ref this._selectedSort, value, broadcast: true); }
         }
 
         public Order SelectedOrder
         {
             get { return this._selectedOrder; }
-            set { this.Set(ref this._selectedOrder, value); }
+            set { this.Set(ref this._selectedOrder, value, broadcast: true); }
         }
         //public byte SelectedMinimumRating
         //{
