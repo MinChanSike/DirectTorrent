@@ -207,11 +207,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                 this.MovieYear = movie.Year;
                 this.MovieDuration = movie.Runtime;
                 this.MovieRating = movie.Rating;
-                StringBuilder genres = new StringBuilder();
-                movie.Genres.ForEach(x => genres.Append(x + "/"));
-                var genre = genres.ToString();
-                genre = genre.Remove(genre.Length - 1);
-                this.MovieGenre = genre;
+                this.MovieGenre = string.Join("/", movie.Genres);
                 //Messenger.Default.Send(movie.Runtime, "runtime");
                 //Data.Runtime = movie.Runtime;
                 this.MovieImage = new BitmapImage(new Uri(movie.Images.LargeCoverImage, UriKind.Absolute));
