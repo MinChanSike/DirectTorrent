@@ -239,14 +239,14 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             Subtitles.Clear();
             try
             {
-                Subtitles.AddRange(await SubtitleRepository.GetSubtitlesByImdbCode(movie.ImdbCode));
+                Subtitles.AddRange((await SubtitleRepository.GetSubtitlesByImdbCode(movie.ImdbCode)).OrderBy(x => x.Language));
             }
             catch (NullReferenceException) { }
             catch (KeyNotFoundException) { }
             catch { }
             finally
             {
-                SelectedSubtitle = Subtitles.FirstOrDefault();
+                SelectedSubtitle = Subtitles.SingleOrDefault(x => x.Language.Equals(System.Globalization.CultureInfo.CurrentUICulture.EnglishName.Split(',', ' ').First(), StringComparison.InvariantCultureIgnoreCase)) ?? Subtitles.FirstOrDefault();
                 SubtitleVisibility = (Subtitles.Count > 0) ? Visibility.Visible : Visibility.Collapsed;
             }
         }
