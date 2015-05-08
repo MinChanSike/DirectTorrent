@@ -158,7 +158,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.Views
     {
         object IValueConverter.Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            return (double)value / 12;
+            return Math.Max((double)value / 12, 12);
         }
 
         object IValueConverter.ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
