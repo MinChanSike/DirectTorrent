@@ -207,11 +207,7 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
                 this.MovieYear = movie.Year;
                 this.MovieDuration = movie.Runtime;
                 this.MovieRating = movie.Rating;
-                StringBuilder genres = new StringBuilder();
-                movie.Genres.ForEach(x => genres.Append(x + "/"));
-                var genre = genres.ToString();
-                genre = genre.Remove(genre.Length - 1);
-                this.MovieGenre = genre;
+                this.MovieGenre = string.Join("/", movie.Genres);
                 //Messenger.Default.Send(movie.Runtime, "runtime");
                 //Data.Runtime = movie.Runtime;
                 this.MovieImage = new BitmapImage(new Uri(movie.Images.LargeCoverImage, UriKind.Absolute));
@@ -239,14 +235,14 @@ namespace DirectTorrent.Presentation.Clients.WPFClient.ViewModels
             Subtitles.Clear();
             try
             {
-                Subtitles.AddRange(await SubtitleRepository.GetSubtitlesByImdbCode(movie.ImdbCode));
+                Subtitles.AddRange((await SubtitleRepository.GetSubtitlesByImdbCode(movie.ImdbCode)).OrderBy(x => x.Language));
             }
             catch (NullReferenceException) { }
             catch (KeyNotFoundException) { }
             catch { }
             finally
             {
-                SelectedSubtitle = Subtitles.FirstOrDefault();
+                SelectedSubtitle = Subtitles.SingleOrDefault(x => x.Language.Equals(System.Globalization.CultureInfo.CurrentUICulture.EnglishName.Split(',', ' ').First(), StringComparison.InvariantCultureIgnoreCase)) ?? Subtitles.FirstOrDefault();
                 SubtitleVisibility = (Subtitles.Count > 0) ? Visibility.Visible : Visibility.Collapsed;
             }
         }
